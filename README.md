@@ -39,7 +39,7 @@ This is a simple TODO application with user authentication built using Express.j
 
 1. **Clone the Repository:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/notnotdurgesh/ToDoApp
    ```
 
 2. **Install Dependencies:**
@@ -49,7 +49,6 @@ This is a simple TODO application with user authentication built using Express.j
    ```
 
 3. **Set Environment Variables:**
-   - Create a `.env` file in the root directory.
    - Define the following environment variables:
      - `MONGODB_URI`: MongoDB connection URI.
      - `SECRET_KEY`: Secret key for JWT token generation.
