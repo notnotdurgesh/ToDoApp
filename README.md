@@ -39,7 +39,7 @@ This is a simple TODO application with user authentication built using Express.j
 
 1. **Clone the Repository:**
    ```bash
-   git clone https://github.com/notnotdurgesh/ToDoApp
+   git clone https://github.com/notnotdurgesh/ToDoApp.git
    ```
 
 2. **Install Dependencies:**
