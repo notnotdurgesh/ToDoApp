@@ -1,6 +1,6 @@
 # Simple TODO App with Authentication
 
-![TODO App Preview](todo_app_preview.png)
+![TODO App Preview](./image/todo_app_preview.png)
 
 This is a simple TODO application with user authentication built using Express.js, MongoDB, and vanilla JavaScript for the frontend.
 
