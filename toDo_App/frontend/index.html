@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TODO</title>
+    <style>
+        .todoOutput {
+            padding: 10px;
+            margin: 10px;
+            border: 2px solid #000000;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div style="font-family: 'Courier New', Courier, monospace; text-align: center;">
+        <header>
+            <h2>Simple TODO app with authentication</h2>
+        </header>
+        <div style="margin-bottom: 10px;">
+            <label for="title" style="display: inline-block; width: 80px; text-align: right;">Title:</label>
+            <input type="text" name="title" id="title">
+        </div>
+        <div style="margin-bottom: 10px;">
+            <label for="desc" style="display: inline-block; width: 80px; text-align: right;">Desc:</label>
+            <input type="text" name="desc" id="desc">
+        </div>
+        <div>
+            <button class = "submit" onclick="submitData()">Add Todo</button>
+        </div>
+    </div>
+    <hr style="margin: 20px">
+    <div id="output" style="text-align: center;">
+        <header>
+            <h3>ToDo's</h3>
+        </header>
+    </div>
+
+<script>
+    const url = 'http://localhost:3000/getall';
+    try {
+        getAuth();
+        getData();
+    } catch(err){
+        console.log("erors", err)
+    }
+
+    //Autheticate
+    function getAuth() {
+        const signupUrl = 'http://localhost:3000/signup';
+        const payload = {
+            username: "durgesh",
+            password: "miakhalifa"
+        }
+
+        fetch(signupUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload), 
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Signup response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            localStorage.setItem('token', data.key);
+            console.log('Successfully signed up', data);
+        })
+        .catch(err => {
+            console.error('Error signing up:', err);
+        });
+    }
+
+    //helper function to create child div
+    function createChild(title, desc, item_id) {
+            const parent1 = document.createElement('div');
+            parent1.setAttribute('class', "todoOutput");
+
+            const child1 = document.createElement('div');
+            child1.innerHTML = title;
+            child1.setAttribute('id', `todoTitle-${item_id}`);
+
+            const child2 = document.createElement('div');
+            child2.innerHTML = desc;
+            child2.setAttribute('id', `todoDesc-${item_id}`);
+
+            const child3 = document.createElement('button');
+            child3.innerHTML = "Press If Completed";
+            child3.setAttribute('class', `item_id`);
+            child3.setAttribute('onclick', `updateTodoItems('${item_id}')`);
+
+            parent1.appendChild(child1);
+            parent1.appendChild(child2);
+            parent1.appendChild(child3);
+
+            return parent1;
+        }
+
+        //deletion for already done todo
+        function updateTodoItems(id) {
+            const token = localStorage.getItem('token')
+            delete_Url = `http://localhost:3000/deleteOne/${id}`; 
+            fetch(delete_Url, {
+                method: 'DELETE',
+                headers:{
+                    authorization:String(token)
+                } 
+            })
+            .then(response => {
+                if (response.ok) {
+                    console.log('Item deleted successfully');
+                    getData();
+                } else {
+                    console.error('Failed to delete item');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting item:', error);
+            });
+        }
+
+        //main function to start
+        async function submitData() {
+            const titleInput = document.getElementById('title');
+            const descInput = document.getElementById('desc');
+            const title = titleInput.value.trim();
+            const desc = descInput.value.trim();
+
+            if (title || desc) {
+                saveData(title, desc);
+                clearField('title');
+                clearField('desc');
+            }
+        }
+
+        function clearField(id){
+            document.getElementById(id).value = ""
+        }
+
+        //save todo 
+        function saveData(title, desc) {
+            const payload = {
+                title: title,
+                desc: desc,
+            }
+            const token = localStorage.getItem('token');
+            const url = "http://localhost:3000/add"
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': String(token)
+                },
+                body: JSON.stringify(payload),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Data saved successfully:', data);
+                getData(); 
+            })
+            .catch(err => {
+                console.error('Error saving data:', err);
+            });
+        }
+
+        //get data
+        function getData() {
+            const token = localStorage.getItem('token')
+            const parent = document.getElementById('output'); 
+
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Authorization': String(token)
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json(); 
+            })
+            .then(data => {
+                parent.innerHTML = '';
+
+                data.forEach(item => {
+                    const title = item.title;
+                    const desc = item.desc;
+                    const item_id = String(item.todo_id);
+                    parent.appendChild(createChild(title, desc, item_id));
+                });
+                console.log(data);
+            })
+            .catch(err => {
+                console.error('Error fetching data from server:', err);
+            });
+        }
+
+
+
+
+
+
+</script>
+
+</body>
+</html>
